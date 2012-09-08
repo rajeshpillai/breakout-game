@@ -6,6 +6,7 @@ Brick = function (x,y,width,height,color) {
       this.y = y;
       this.isActive = true;
       this.value = 0;
+      this.backgroundColor = "black";
 };
 
 Brick.prototype.draw = function (ctx) {

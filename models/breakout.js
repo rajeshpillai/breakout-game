@@ -1,22 +1,43 @@
-var GameState = {
-  gameLoop: null
-}
 
 
-Breakout = function () {
+$(function () {
+  
+  var breakOut = new Breakout();
+  
+  $(document).keyup(function(evt) {
+        if (evt.keyCode == 13) {
+          breakOut.start();
+        }
+    });
+});
+
+var Breakout = function () {
   var that = this;
+  
+  this.gameLoop = null;
   this.init();
   this.draw();
   this.backgroundColor = "black";
+};
+
+Breakout.prototype.captureKeys = function () {
+  var that = this;
+  $(document).keydown(function(evt) {
+    if (evt.keyCode === 39) {
+        that.paddleMove = 'RIGHT';
+    } else if (evt.keyCode === 37){
+        that.paddleMove = 'LEFT';
+    }
+    that.movePaddle(that.paddleMove);
+  });         
 
   $(document).keyup(function(evt) {
-      if (evt.keyCode == 13) {
-        that.init();
-        that.draw();
-        that.start();
+      if (evt.keyCode == 39) {
+          that.paddleMove = 'RIGHTNONE';
+      } else if (evt.keyCode == 37){
+          that.paddleMove = 'LEFTNONE';
       }
-  });
-
+  }); 
 };
 
 Breakout.prototype.init = function () {
@@ -54,22 +75,7 @@ Breakout.prototype.init = function () {
   this.bouncingSound = new Audio("sound/bounce.ogg");
   this.breakingSound = new Audio("sound/break.ogg");
   
-  $(document).keydown(function(evt) {
-    if (evt.keyCode == 39) {
-        that.paddleMove = 'RIGHT';
-    } else if (evt.keyCode == 37){
-        that.paddleMove = 'LEFT';
-    }
-    that.movePaddle(that.paddleMove);
-  });         
-
-  $(document).keyup(function(evt) {
-      if (evt.keyCode == 39) {
-          that.paddleMove = 'NONE';
-      } else if (evt.keyCode == 37){
-          that.paddleMove = 'NONE';
-      }
-  }); 
+  this.captureKeys();
 
   var bricksPerRow = 8;               
   var brickHeight = 20;
@@ -110,22 +116,30 @@ Breakout.prototype.randomRange = function(min, max) {
 
 Breakout.prototype.start = function () {
   var that = this;
+  that.clear();
+
   Score.reset();
   this.gameOver = false;
-  if (GameState.gameLoop === null) {
-    GameState.gameLoop = setInterval((function(self) {
+
+  
+  this.ball.x = this.randomRange(10,590);
+  this.ball.y = this.randomRange(80,400);
+  
+  //that.draw();
+
+  if (that.gameLoop === null) {
+    that.gameLoop = setInterval((function(self) {
       return function () {
         self.moveBall(self);
       }
     })(that), 1000/60);
   }
-
 };
 
 Breakout.prototype.endGame = function (that) {
-   clearInterval(GameState.gameLoop);
-   GameState.gameLoop = null;
-   this.gameOver = true;
+   clearInterval(that.gameLoop);
+   that.gameLoop = null;
+   that.gameOver = true;
    return;
 };
 
@@ -163,12 +177,13 @@ Breakout.prototype.checkWinner = function () {
 
 
 Breakout.prototype.moveBall = function(self) {
+  console.log("In moveBall..");
   if (self.gameOver) {
-    this.endGame();
+    this.endGame(self);
     return;
   }
   
-  this.draw(); //todo
+  this.draw(); 
   this.ball.move();
   
   this.game.checkBallToWallCollision();
@@ -191,10 +206,20 @@ Breakout.prototype.moveBall = function(self) {
     this.ctx.fillStyle = "#fff";
     this.ctx.fillText('Congratulations! You win.', this.canvas.width/2-40, this.canvas.height/4);
     this.ctx.fillText('PRESS <ENTER> or <RETURN> key to start the game.', 30, this.canvas.height/2);
-
     this.ctx.restore();
-      
+    Score.update();
   }
+
+
+  /*
+  if (self.paddleMove === 'RIGHTNONE') {
+    self.movePaddle('RIGHT',2);
+  }
+  else {
+    self.movePaddle('LEFT',-2);
+  }
+  */
+
 };
 
 Breakout.prototype.checkBallToBricksCollision = function() {
@@ -206,9 +231,11 @@ Breakout.prototype.checkBallToBricksCollision = function() {
           this.ball.x + this.ball.deltaX <= bricks[i].x + bricks[i].width) {
           
           if (bricks[i].isActive) {
-            this.breakingSound.play();
+            //this.breakingSound.play();
             this.ball.deltaY = -this.ball.deltaY;
             bricks[i].isActive = false;
+            
+            this.ball.backgroundColor = bricks[i].color; // todo
 
             switch(bricks[i].value) {
               case 0:
@@ -235,7 +262,7 @@ Breakout.prototype.checkBallToPaddleCollision = function () {
     // and it is positioned between the two ends of the paddle (is on top)
     if (this.ball.x + this.ball.deltaX >= this.paddle.x && 
       this.ball.x + this.ball.deltaX <= this.paddle.x + this.paddle.width){
-        this.bouncingSound.play();
+        //this.bouncingSound.play();
         this.ball.deltaY = - this.ball.deltaY;
     }
   }
@@ -284,12 +311,12 @@ Breakout.prototype.checkBallToWallCollision = function () {
        this.ctx.restore();
       
        this.gameOver = true;
-       this.endGame();
+       this.endGame(this);
        Score.update();
     }
 };
 
-Breakout.prototype.movePaddle = function(dir) {
+Breakout.prototype.movePaddle = function(dir, delta) {
    if (this.paddle.x < 10) {
       this.paddle.deltaX = 0;
    }
@@ -299,11 +326,11 @@ Breakout.prototype.movePaddle = function(dir) {
    }
 
    if (this.paddle.x < 10 && dir === 'RIGHT') {
-      this.paddle.deltaX = 10;
+      this.paddle.deltaX = delta || 5;
    }
 
    if (this.paddle.x > 500 && dir === 'LEFT') {
-      this.paddle.deltaX = -10;
+      this.paddle.deltaX = delta || -5;
    }
    
    this.paddle.move(dir);
