@@ -4,15 +4,16 @@ $(function () {
   var breakOut = new Breakout();
   $(document).keyup(function(evt) {
         if (evt.keyCode == 13) {
-          breakOut.init();
-          breakOut.start();
+          if (breakOut.gameLoop === null) {
+            breakOut.clear();
+            breakOut.init();
+            breakOut.start();
+          }
         }
     });
 });
 
 var Breakout = function () {
-  var that = this;
-  
   this.gameLoop = null;
   this.init();
   this.draw();
@@ -84,7 +85,7 @@ Breakout.prototype.init = function () {
     for (var c=0; c < that.bricks[r].length; c++) {
       var brick = new Brick(c * brickWidth,r * brickHeight, brickWidth, brickHeight, "brown");
       
-      switch(that.bricks[r][c]) {
+      switch(this.bricks[r][c]) {
          case 0:
             brick.isActive = false;
             brick.color = "black";
@@ -229,9 +230,9 @@ Breakout.prototype.checkBallToBricksCollision = function() {
   var bricks = this.brickObjects;
 
   for (var i = 0; i < bricks.length; i++) {
-    if (this.ball.y + this.ball.deltaY + this.ball.radius <= bricks[i].y + bricks[i].height){
-     if (this.ball.x + this.ball.deltaX >= bricks[i].x && 
-          this.ball.x + this.ball.deltaX <= bricks[i].x + bricks[i].width) {
+    if (this.ball.getYBounds() <= bricks[i].y + bricks[i].height){
+     if (this.ball.getXBounds() >= bricks[i].x && 
+          this.ball.getXBounds() <= bricks[i].x + bricks[i].width) {
           
           if (bricks[i].isActive) {
             //this.breakingSound.play();

@@ -8,8 +8,12 @@ var Ball = function (x,y, radius, angle) {
     this.angle = angle * Math.PI/180;
   };
 
-  Ball.prototype.getBounds = function () {
-     return new Rect(this.x, this.y, this.x + this.width, this.y + this.height);
+  Ball.prototype.getXBounds = function () {
+     return (this.x + this.deltaX);
+  };
+
+   Ball.prototype.getYBounds = function () {
+     return (this.y + this.deltaY + this.radius);
   };
 
   Ball.prototype.draw = function (ctx) {
@@ -25,14 +29,18 @@ var Ball = function (x,y, radius, angle) {
 
   Ball.prototype.move = function () {
     //console.log(this.backgroundColor);
+    this.clear();
+
+    this.x = this.x + this.deltaX;
+    this.y = this.y + this.deltaY;
+    this.draw(this.ctx);
+  };
+
+  Ball.prototype.clear = function () {
     this.ctx.save();
     this.ctx.fillStyle = this.backgroundColor;
     this.ctx.beginPath();
     this.ctx.clearRect(this.x - this.radius - 1, this.y - this.radius - 1, this.radius * 2 + 2, this.radius * 2 + 2);
     this.ctx.closePath();
     this.ctx.restore();
-
-    this.x = this.x + this.deltaX;
-    this.y = this.y + this.deltaY;
-    this.draw(this.ctx);
   };
