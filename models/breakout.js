@@ -1,11 +1,10 @@
 
 
 $(function () {
-  
   var breakOut = new Breakout();
-  
   $(document).keyup(function(evt) {
         if (evt.keyCode == 13) {
+          breakOut.init();
           breakOut.start();
         }
     });
@@ -70,7 +69,7 @@ Breakout.prototype.init = function () {
   this.width = canvas.width;
   this.height = canvas.height;
   
-  this.ctx.clearRect(0,0,this.width, this.height);
+  this.clear();
 
   this.bouncingSound = new Audio("sound/bounce.ogg");
   this.breakingSound = new Audio("sound/break.ogg");
@@ -87,22 +86,22 @@ Breakout.prototype.init = function () {
       
       switch(that.bricks[r][c]) {
          case 0:
-          brick.isActive = false;
-          brick.color = "black";
-          brick.value = 0;
-          break;
+            brick.isActive = false;
+            brick.color = "black";
+            brick.value = 0;
+            break;
          case 1:
-          brick.color = "green";
-          brick.value = 1;
-          break;
+            brick.color = "green";
+            brick.value = 1;
+            break;
          case 2:
-          brick.color = "yellow";
-          brick.value = 2;
-          break;
+            brick.color = "yellow";
+            brick.value = 2;
+            break;
          case 3:
-          brick.color = "orange";
-          brick.value = 3;
-          break;
+            brick.color = "orange";
+            brick.value = 3;
+            break;
       }
 
       that.brickObjects.push(brick);
