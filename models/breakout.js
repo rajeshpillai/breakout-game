@@ -174,6 +174,21 @@ Breakout.prototype.checkWinner = function () {
   return result;
 };
 
+Breakout.prototype.winMessage = function () {
+  this.ctx.save();
+
+  this.ctx.shadowColor = 'red';
+  this.ctx.shadowOffsetX = 0;
+  this.ctx.shadowOffsetY = 0;
+  this.ctx.shadowBlur = 5;
+
+  this.ctx.font = "20pt Calibri";
+  this.ctx.strokeStyle = "rgba(255,255,255,0.4)"; // 40% opaque white
+  this.ctx.fillStyle = "#fff";
+  this.ctx.fillText('Congratulations! You win.', this.canvas.width/2-40, this.canvas.height/4);
+  this.ctx.fillText('PRESS <ENTER> or <RETURN> key to start the game.', 30, this.canvas.height/2);
+  this.ctx.restore();
+}
 
 Breakout.prototype.moveBall = function(self) {
   console.log("In moveBall..");
@@ -193,19 +208,8 @@ Breakout.prototype.moveBall = function(self) {
     this.gameOver = true;
     this.clear();
 
-    this.ctx.save();
-
-    this.ctx.shadowColor = 'red';
-    this.ctx.shadowOffsetX = 0;
-    this.ctx.shadowOffsetY = 0;
-    this.ctx.shadowBlur = 5;
-
-    this.ctx.font = "20pt Calibri";
-    this.ctx.strokeStyle = "rgba(255,255,255,0.4)"; // 40% opaque white
-    this.ctx.fillStyle = "#fff";
-    this.ctx.fillText('Congratulations! You win.', this.canvas.width/2-40, this.canvas.height/4);
-    this.ctx.fillText('PRESS <ENTER> or <RETURN> key to start the game.', 30, this.canvas.height/2);
-    this.ctx.restore();
+    this.winMessage();
+    
     Score.update();
   }
 
@@ -267,6 +271,26 @@ Breakout.prototype.checkBallToPaddleCollision = function () {
   }
 }
 
+Breakout.prototype.lostMessage = function () {
+   this.ctx.save();
+
+   this.ctx.shadowColor = 'red';
+   this.ctx.shadowOffsetX = 1;
+   this.ctx.shadowOffsetY = 1;
+   this.ctx.shadowBlur = 5;
+
+   //this.ctx.font = "20pt Calibri";
+   this.ctx.font = "12pt Slackey";
+   this.ctx.strokeStyle = "rgba(255,255,255,0.4)"; // 40% opaque white
+
+   this.ctx.fillStyle = "#ddd";
+
+   this.ctx.fillText('The End!!!! Better luck next time.', 30, this.canvas.height/4);
+   this.ctx.fillText('PRESS <ENTER> or <RETURN> key to start the game.', 30, this.canvas.height/2);
+
+   this.ctx.restore();
+}
+
 Breakout.prototype.checkBallToWallCollision = function () {
     // check left collision
     if (this.ball.x <= 5) {
@@ -290,24 +314,8 @@ Breakout.prototype.checkBallToWallCollision = function () {
       
     if (this.ball.y >= 550) {
        this.clear();
-      
-       this.ctx.save();
 
-       this.ctx.shadowColor = 'red';
-       this.ctx.shadowOffsetX = 1;
-       this.ctx.shadowOffsetY = 1;
-       this.ctx.shadowBlur = 5;
-
-       //this.ctx.font = "20pt Calibri";
-       this.ctx.font = "12pt Slackey";
-       this.ctx.strokeStyle = "rgba(255,255,255,0.4)"; // 40% opaque white
-
-       this.ctx.fillStyle = "#ddd";
-
-       this.ctx.fillText('The End!!!! Better luck next time.', 30, this.canvas.height/4);
-       this.ctx.fillText('PRESS <ENTER> or <RETURN> key to start the game.', 30, this.canvas.height/2);
-
-       this.ctx.restore();
+       this.lostMessage();
       
        this.gameOver = true;
        this.endGame(this);
