@@ -8,6 +8,7 @@ $(function() {
 	  if (evt.keyCode == 32) {
 	    $(".startup").hide();
 	    $("#canvas").show();
+	  	//var breakout = new Breakout();
 	  	$(document).off("keyup", start);
 	  }
 	} 

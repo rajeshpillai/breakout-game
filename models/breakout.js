@@ -1,27 +1,28 @@
 
 
 $(function () {
-  var breakOut = new Breakout();
-  $(document).keyup(function(evt) {
-        if (evt.keyCode == 13) {
-          if (breakOut.gameLoop === null) {
-            breakOut.clear();
-            breakOut.init();
-            breakOut.start();
-          }
-        }
-    });
+  breakOut = new Breakout();
+  
 });
 
 var Breakout = function () {
   this.gameLoop = null;
   this.init();
   this.draw();
-  this.backgroundColor = "black";
 };
 
 Breakout.prototype.captureKeys = function () {
   var that = this;
+  $(document).keyup(function(evt) {
+      if (evt.keyCode == 13) {
+        if (breakOut.gameLoop === null) {
+          breakOut.clear();
+          breakOut.init();
+          breakOut.start();
+        }
+      }
+  });
+
   $(document).keydown(function(evt) {
     if (evt.keyCode === 39) {
         that.paddleMove = 'RIGHT';
@@ -45,6 +46,7 @@ Breakout.prototype.init = function () {
 
   this.canvas = $("#canvas")[0];
   this.ctx = canvas.getContext('2d');
+  this.backgroundColor = "black";
 
   Score.init(this.ctx);
   
@@ -140,6 +142,9 @@ Breakout.prototype.endGame = function (that) {
    clearInterval(that.gameLoop);
    that.gameLoop = null;
    that.gameOver = true;
+
+   $(document).off();
+   that.captureKeys();
    return;
 };
 
@@ -192,7 +197,6 @@ Breakout.prototype.winMessage = function () {
 }
 
 Breakout.prototype.moveBall = function(self) {
-  console.log("In moveBall..");
   if (self.gameOver) {
     this.endGame(self);
     return;
