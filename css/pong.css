@@ -1,0 +1,33 @@
+#canvas-wrapper {
+    width: 600px;
+     height:600px;
+     margin: 0px auto;
+}
+
+#canvas {
+	margin:0;
+	padding:0;
+	background-color: black;
+    display: none;
+}
+
+#game {
+   
+    /*background-color : rgb(30,30,30);*/
+    font-family : Geo;
+    font-size: 20px;
+    color : rgb(200,200,100);
+    text-align: center;
+}
+
+.splash {
+    font-family : Slackey;
+    font-size : 60px;
+    line-height : 60px;
+    margin : 0;
+    text-align : center;
+    color : rgb(70,120,20);
+    text-shadow : 1px 1px 2px rgb(255,255,0),
+                  -1px -1px 2px rgb(255,255,0),
+                  5px 8px 8px rgb(0,0,0);
+}
