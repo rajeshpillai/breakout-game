@@ -7,20 +7,54 @@ $(function () {
 
 var Breakout = function () {
   this.gameLoop = null;
+  this.isPaused = false;
   this.init();
   this.draw();
 };
 
+
+Breakout.prototype.pause = function (self) {
+  console.log("Pausing " + self.gameLoop);
+  clearInterval(self.gameLoop);   
+}
+
+Breakout.prototype.resume = function (that) {
+  clearInterval(that.gameLoop);
+  console.log("Resuming " + that.gameLoop);
+  that.gameLoop = setInterval((function(self) {
+    return function () {
+      self.moveBall(self);
+    }
+  })(that), 1000/60);
+}
+
 Breakout.prototype.captureKeys = function () {
   var that = this;
   $(document).keyup(function(evt) {
-      if (evt.keyCode == 13) {
-        if (breakOut.gameLoop === null) {
-          breakOut.clear();
-          breakOut.init();
-          breakOut.start();
+      if (evt.keyCode === 13) {
+        if (that.gameLoop === null) {
+          that.clear();
+          that.init();
+          that.start();
         }
       }
+      // if 'p' key pressed, then pause
+      else if (evt.keyCode === 80) {
+        console.log ('p is pressed');
+        if (!that.isPaused) {
+            that.isPaused = true;
+            that.pause(that); 
+          }
+      }
+      else if (evt.keyCode === 82) {   // 'r' key pressed
+          console.log('r is pressed');
+          
+          if (that.isPaused) {
+            that.isPaused = false;
+            that.resume(that);        
+          }
+      }
+      
   });
 
   $(document).keydown(function(evt) {
@@ -54,14 +88,17 @@ Breakout.prototype.init = function () {
   this.paddle =  new  Paddle(40, 500,  80, 20,"orange");
   
   this.bricks = [
-        [1,1,1,1,1,1,1,2],
-        [1,1,3,1,0,1,1,1],
+        [1,2,1,3,2,1,2,2],
+        [1,1,2,1,0,3,1,1],
         [2,1,3,1,2,1,0,1],
         [3,2,2,2,0,2,1,1]
       ];
 
-  this.bricksxx = [
-        [0,0,1,0,0,0,0,0]
+   this.bricksxx = [
+        [3,3,3,3,3,3,3,3],
+        [3,3,3,3,3,3,3,3],
+        [3,3,3,3,3,3,3,3],
+        [3,3,3,3,3,3,3,3]
       ];
 
   this.brickObjects = [];
@@ -129,15 +166,16 @@ Breakout.prototype.start = function () {
   this.ball.x = this.randomRange(10,590);
   this.ball.y = this.randomRange(80,400);
 
+  this.ballObjects = [];
+
   this.ballObjects.push(this.ball);   
 
-  if (that.gameLoop === null) {
-    that.gameLoop = setInterval((function(self) {
-      return function () {
-        self.moveBall(self);
-      }
-    })(that), 1000/60);
-  }
+  clearInterval(that.gameLoop);
+  that.gameLoop = setInterval((function(self) {
+    return function () {
+      self.moveBall(self);
+    }
+  })(that), 1000/60);
 };
 
 Breakout.prototype.endGame = function (that) {
@@ -145,7 +183,7 @@ Breakout.prototype.endGame = function (that) {
    that.gameLoop = null;
    that.gameOver = true;
 
-   $(document).off();
+   $(document).off();  // disable all events on the documents.
    that.captureKeys();
    return;
 };
@@ -207,13 +245,14 @@ Breakout.prototype.moveBall = function(self) {
   this.draw(); 
 
   for(var i = 0; i < this.ballObjects.length; i++) {
-    //this.ball.move();
     this.ballObjects[i].move();
   }
   
   this.checkBallToWallCollision();
   this.checkBallToPaddleCollision();
   this.checkBallToBricksCollision();
+
+
 
   if (this.game.checkWinner()) {
     this.gameOver = true;
@@ -224,6 +263,7 @@ Breakout.prototype.moveBall = function(self) {
     Score.update();
   }
 
+  this.handleBallCollision();
 
   /*
   if (self.paddleMove === 'RIGHTNONE') {
@@ -236,24 +276,32 @@ Breakout.prototype.moveBall = function(self) {
 
 };
 
-Breakout.prototype.incrementScore = function (value) {
+Breakout.prototype.incrementScore = function (value, ball) {
+  var increment = 10;
   switch(value) {
     case 0:
       break;
     case 1:
-     Score.increment(10);
+      increment = 10;
       break;
     case 2:
-      Score.increment(12);
+      increment = 12;
       break;
     case 3:
-      Score.increment(15);
+      increment = 15;
       var ball = new Ball(this.randomRange(10,590), this.randomRange(80,400), 12, 360);
       ball.color = Color.getRandomColor();
+      ball.isPrimary = false;
       ball.ctx = this.ctx;
+      ball.deltaX = -1;
+      ball.deltaY = -1;
       this.ballObjects.push(ball);
       break;
   }
+  if (!ball.isPrimary) {
+    increment += 10;
+  }
+  Score.increment(increment);
 };
 
 Breakout.prototype.checkBallToBricksCollision = function() {
@@ -266,13 +314,13 @@ Breakout.prototype.checkBallToBricksCollision = function() {
             this.ballObjects[ballIndex].getXBounds() <= bricks[i].x + bricks[i].width) {
             
             if (bricks[i].isActive) {
-              this.breakingSound.play();
+              //this.breakingSound.play();
               this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
               bricks[i].isActive = false;
               
               this.ballObjects[ballIndex].backgroundColor = bricks[i].color; // todo
 
-              this.incrementScore(bricks[i].value);
+              this.incrementScore(bricks[i].value, this.ballObjects[ballIndex]);
             }
         }
       }
@@ -287,7 +335,7 @@ Breakout.prototype.checkBallToPaddleCollision = function () {
       // and it is positioned between the two ends of the paddle (is on top)
       if (this.ballObjects[index].x + this.ballObjects[index].deltaX >= this.paddle.x && 
         this.ballObjects[index].x + this.ballObjects[index].deltaX <= this.paddle.x + this.paddle.width){
-          this.bouncingSound.play();
+          //this.bouncingSound.play();
           this.ballObjects[index].deltaY = - this.ballObjects[index].deltaY;
       }
     }
@@ -314,6 +362,25 @@ Breakout.prototype.lostMessage = function () {
    this.ctx.restore();
 }
 
+Breakout.prototype.handleBallCollision = function () {
+  for(var i = 0; i < this.ballObjects.length-1; i++) {  
+    for(var j = 1; j < this.ballObjects.length; j++) {  
+        this.checkBallCollision(this.ballObjects[i], this.ballObjects[j]);
+    }  
+  }  
+}
+
+Breakout.prototype.checkBallCollision = function (ball0, ball1) {
+  var dx = ball1.x - ball0.x,
+      dy = ball1.y - ball0.y,
+      dist = Math.sqrt(dx * dx + dy * dy);
+      
+      //collision handling code here
+      if (dist < ball0.radius + ball1.radius) {
+            ball0.deltaX = ball0.deltaX * -1;
+            ball1.deltaX = ball1.deltaX * -1;
+      }
+}
 Breakout.prototype.checkBallToWallCollision = function () {
     for(var index = 0; index < this.ballObjects.length; index++) {  
       // check left collision
@@ -337,18 +404,27 @@ Breakout.prototype.checkBallToWallCollision = function () {
       }
         
       if (this.ballObjects[index].y >= 550) {
-         this.clear();
+        if (this.ballObjects[index].isPrimary) {
+           this.clear();
 
-         this.lostMessage();
-        
-         this.gameOver = true;
-         this.endGame(this);
-         Score.update();
+           this.lostMessage();
+          
+           this.gameOver = true;
+           this.endGame(this);
+           Score.update();
+        }
+        else {
+          this.ballObjects[index].clear();
+          this.ballObjects.remove(index);
+        }
       }
     }
 };
 
 Breakout.prototype.movePaddle = function(dir, delta) {
+   if (this.isPaused) {
+      return;
+   }
    if (this.paddle.x < 10) {
       this.paddle.deltaX = 0;
    }

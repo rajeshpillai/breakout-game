@@ -7,6 +7,7 @@ var Ball = function (x,y, radius, angle) {
     this.radius = radius;
     this.angle = angle * Math.PI/180;
     this.color = "red";
+    this.isPrimary = true;
   };
 
   Ball.prototype.getXBounds = function () {
