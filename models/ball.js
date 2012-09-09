@@ -6,6 +6,7 @@ var Ball = function (x,y, radius, angle) {
     this.backgroundColor = "black";
     this.radius = radius;
     this.angle = angle * Math.PI/180;
+    this.color = "red";
   };
 
   Ball.prototype.getXBounds = function () {
@@ -20,7 +21,7 @@ var Ball = function (x,y, radius, angle) {
     this.ctx = ctx;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, this.angle, true);
-    ctx.fillStyle = "red";
+    ctx.fillStyle = this.color;
     ctx.fill();
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";

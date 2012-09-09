@@ -56,8 +56,8 @@ Breakout.prototype.init = function () {
   this.bricks = [
         [1,1,1,1,1,1,1,2],
         [1,1,3,1,0,1,1,1],
-        [2,1,2,1,2,1,0,1],
-        [1,2,1,1,0,3,1,1]
+        [2,1,3,1,2,1,0,1],
+        [3,2,2,2,0,2,1,1]
       ];
 
   this.bricksxx = [
@@ -65,6 +65,7 @@ Breakout.prototype.init = function () {
       ];
 
   this.brickObjects = [];
+  this.ballObjects = [];
 
   this.game = this;
   this.gameOver = false;
@@ -82,6 +83,7 @@ Breakout.prototype.init = function () {
   var bricksPerRow = 8;               
   var brickHeight = 20;
   var brickWidth = this.canvas.width/bricksPerRow;
+
 
   for (var r=0; r < that.bricks.length; r++) {
     for (var c=0; c < that.bricks[r].length; c++) {
@@ -126,8 +128,8 @@ Breakout.prototype.start = function () {
   
   this.ball.x = this.randomRange(10,590);
   this.ball.y = this.randomRange(80,400);
-  
-  //that.draw();
+
+  this.ballObjects.push(this.ball);   
 
   if (that.gameLoop === null) {
     that.gameLoop = setInterval((function(self) {
@@ -203,11 +205,15 @@ Breakout.prototype.moveBall = function(self) {
   }
   
   this.draw(); 
-  this.ball.move();
+
+  for(var i = 0; i < this.ballObjects.length; i++) {
+    //this.ball.move();
+    this.ballObjects[i].move();
+  }
   
-  this.game.checkBallToWallCollision();
-  this.game.checkBallToPaddleCollision();
-  this.game.checkBallToBricksCollision();
+  this.checkBallToWallCollision();
+  this.checkBallToPaddleCollision();
+  this.checkBallToBricksCollision();
 
   if (this.game.checkWinner()) {
     this.gameOver = true;
@@ -230,48 +236,60 @@ Breakout.prototype.moveBall = function(self) {
 
 };
 
+Breakout.prototype.incrementScore = function (value) {
+  switch(value) {
+    case 0:
+      break;
+    case 1:
+     Score.increment(10);
+      break;
+    case 2:
+      Score.increment(12);
+      break;
+    case 3:
+      Score.increment(15);
+      var ball = new Ball(this.randomRange(10,590), this.randomRange(80,400), 12, 360);
+      ball.color = Color.getRandomColor();
+      ball.ctx = this.ctx;
+      this.ballObjects.push(ball);
+      break;
+  }
+};
+
 Breakout.prototype.checkBallToBricksCollision = function() {
   var bricks = this.brickObjects;
 
   for (var i = 0; i < bricks.length; i++) {
-    if (this.ball.getYBounds() <= bricks[i].y + bricks[i].height){
-     if (this.ball.getXBounds() >= bricks[i].x && 
-          this.ball.getXBounds() <= bricks[i].x + bricks[i].width) {
-          
-          if (bricks[i].isActive) {
-            //this.breakingSound.play();
-            this.ball.deltaY = -this.ball.deltaY;
-            bricks[i].isActive = false;
+    for (var ballIndex = 0; ballIndex < this.ballObjects.length; ballIndex++) {
+      if (this.ballObjects[ballIndex].getYBounds() <= bricks[i].y + bricks[i].height){
+       if (this.ballObjects[ballIndex].getXBounds() >= bricks[i].x && 
+            this.ballObjects[ballIndex].getXBounds() <= bricks[i].x + bricks[i].width) {
             
-            this.ball.backgroundColor = bricks[i].color; // todo
+            if (bricks[i].isActive) {
+              this.breakingSound.play();
+              this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
+              bricks[i].isActive = false;
+              
+              this.ballObjects[ballIndex].backgroundColor = bricks[i].color; // todo
 
-            switch(bricks[i].value) {
-              case 0:
-                break;
-              case 1:
-               Score.increment(10);
-                break;
-              case 2:
-                Score.increment(12);
-                break;
-              case 3:
-                Score.increment(15);
-                break;
+              this.incrementScore(bricks[i].value);
             }
-          }
+        }
       }
     }
   }  
 };
 
 Breakout.prototype.checkBallToPaddleCollision = function () {
-  // if bottom of ball reaches the top of paddle,
-  if (this.ball.y + this.ball.deltaY + this.ball.radius >= this.paddle.y){
-    // and it is positioned between the two ends of the paddle (is on top)
-    if (this.ball.x + this.ball.deltaX >= this.paddle.x && 
-      this.ball.x + this.ball.deltaX <= this.paddle.x + this.paddle.width){
-        //this.bouncingSound.play();
-        this.ball.deltaY = - this.ball.deltaY;
+  for(var index = 0; index < this.ballObjects.length; index++) {
+    // if bottom of ball reaches the top of paddle,
+    if (this.ballObjects[index].y + this.ballObjects[index].deltaY + this.ballObjects[index].radius >= this.paddle.y){
+      // and it is positioned between the two ends of the paddle (is on top)
+      if (this.ballObjects[index].x + this.ballObjects[index].deltaX >= this.paddle.x && 
+        this.ballObjects[index].x + this.ballObjects[index].deltaX <= this.paddle.x + this.paddle.width){
+          this.bouncingSound.play();
+          this.ballObjects[index].deltaY = - this.ballObjects[index].deltaY;
+      }
     }
   }
 }
@@ -297,34 +315,36 @@ Breakout.prototype.lostMessage = function () {
 }
 
 Breakout.prototype.checkBallToWallCollision = function () {
-    // check left collision
-    if (this.ball.x <= 5) {
-        this.ball.deltaX = Math.abs(this.ball.deltaX);
-    }
+    for(var index = 0; index < this.ballObjects.length; index++) {  
+      // check left collision
+      if (this.ballObjects[index].x <= 5) {
+          this.ballObjects[index].deltaX = Math.abs(this.ballObjects[index].deltaX);
+      }
 
-    // Check top collision
-    if (this.ball.y <= 5) {
-        this.ball.deltaY = Math.abs(this.ball.deltaY);
-    }
+      // Check top collision
+      if (this.ballObjects[index].y <= 5) {
+          this.ballObjects[index].deltaY = Math.abs(this.ballObjects[index].deltaY);
+      }
 
-    // Check right wall collision from left
-    if (this.ball.deltaY > 0 && this.ball.x >= 595) {
-        this.ball.deltaX = -1 * this.ball.deltaY;
-    }
+      // Check right wall collision from left
+      if (this.ballObjects[index].deltaY > 0 && this.ballObjects[index].x >= 595) {
+          this.ballObjects[index].deltaX = -1 * this.ballObjects[index].deltaY;
+      }
 
-    // Check right wall collision from bottom
-    if (this.ball.deltaY < 0 && this.ball.x >= 595) {
-        this.ball.deltaX = -1 * this.ball.deltaX;
-    }
-      
-    if (this.ball.y >= 550) {
-       this.clear();
+      // Check right wall collision from bottom
+      if (this.ballObjects[index].deltaY < 0 && this.ballObjects[index].x >= 595) {
+          this.ballObjects[index].deltaX = -1 * this.ballObjects[index].deltaX;
+      }
+        
+      if (this.ballObjects[index].y >= 550) {
+         this.clear();
 
-       this.lostMessage();
-      
-       this.gameOver = true;
-       this.endGame(this);
-       Score.update();
+         this.lostMessage();
+        
+         this.gameOver = true;
+         this.endGame(this);
+         Score.update();
+      }
     }
 };
 
