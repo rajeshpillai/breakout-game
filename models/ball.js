@@ -20,6 +20,7 @@ var Ball = function (x,y, radius, angle) {
 
   Ball.prototype.draw = function (ctx) {
     this.ctx = ctx;
+    ctx.save();
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, this.angle, true);
     ctx.fillStyle = this.color;
@@ -27,6 +28,15 @@ var Ball = function (x,y, radius, angle) {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
     ctx.stroke(); 
+
+    if (this.isPrimary) {
+      ctx.beginPath();
+      ctx.fillStyle = "yellow";
+      ctx.arc(this.x, this.y, this.radius/4, 0, this.angle, true);
+      ctx.fill();
+    }
+    ctx.restore();
+
   };
 
   Ball.prototype.move = function () {
