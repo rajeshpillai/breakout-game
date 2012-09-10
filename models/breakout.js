@@ -6,6 +6,9 @@ $(function () {
 });
 
 var Breakout = function () {
+  if (!(this instanceof Breakout)) {
+      return new Breakout();
+  }
   this.gameLoop = null;
   this.isPaused = false;
   this.init();
@@ -14,13 +17,11 @@ var Breakout = function () {
 
 
 Breakout.prototype.pause = function (self) {
-  console.log("Pausing " + self.gameLoop);
   clearInterval(self.gameLoop);   
 }
 
 Breakout.prototype.resume = function (that) {
   clearInterval(that.gameLoop);
-  console.log("Resuming " + that.gameLoop);
   that.gameLoop = setInterval((function(self) {
     return function () {
       self.moveBall(self);
@@ -30,7 +31,7 @@ Breakout.prototype.resume = function (that) {
 
 Breakout.prototype.captureKeys = function () {
   var that = this;
-  $(document).keyup(function(evt) {
+  $(document).on("keyup",function(evt) {
       if (evt.keyCode === 13) {
         if (that.gameLoop === null) {
           that.clear();
@@ -40,15 +41,12 @@ Breakout.prototype.captureKeys = function () {
       }
       // if 'p' key pressed, then pause
       else if (evt.keyCode === 80) {
-        console.log ('p is pressed');
         if (!that.isPaused) {
             that.isPaused = true;
             that.pause(that); 
           }
       }
       else if (evt.keyCode === 82) {   // 'r' key pressed
-          console.log('r is pressed');
-          
           if (that.isPaused) {
             that.isPaused = false;
             that.resume(that);        
@@ -57,7 +55,7 @@ Breakout.prototype.captureKeys = function () {
       
   });
 
-  $(document).keydown(function(evt) {
+  $(document).on("keydown keypress keyup",function(evt) {
     if (evt.keyCode === 39) {
         that.paddleMove = 'RIGHT';
     } else if (evt.keyCode === 37){
@@ -66,13 +64,15 @@ Breakout.prototype.captureKeys = function () {
     that.movePaddle(that.paddleMove);
   });         
 
-  $(document).keyup(function(evt) {
+  /*
+  $(document).on("keyup",function(evt) {
       if (evt.keyCode == 39) {
           that.paddleMove = 'RIGHTNONE';
       } else if (evt.keyCode == 37){
           that.paddleMove = 'LEFTNONE';
       }
   }); 
+  */
 };
 
 Breakout.prototype.init = function () {
@@ -94,7 +94,7 @@ Breakout.prototype.init = function () {
         [3,2,2,2,0,2,1,1]
       ];
 
-   this.bricksxx = [
+   this.bricks = [
         [3,3,3,3,3,3,3,3],
         [3,3,3,3,3,3,3,3],
         [3,3,3,3,3,3,3,3],
@@ -294,7 +294,7 @@ Breakout.prototype.incrementScore = function (value, ball) {
       ball.isPrimary = false;
       ball.ctx = this.ctx;
       ball.deltaX = -1;
-      ball.deltaY = -1;
+      ball.deltaY = -2;
       this.ballObjects.push(ball);
       break;
   }

@@ -11,31 +11,32 @@
 <script src="models/brick.js"></script>
 <script src="models/score.js"></script>
 <script src="models/breakout.js"></script>
-
 <script src="game.js"></script>
-
 
 <meta charset=utf-8 />
 <title>HTML5 - Breakout Game</title>
 </head>
 <body>
-
-
   <div class ="startup" width="600px" height="600px">
   		<div class="splash">
   		Breakout Extreme!!!
   		</div>
   		<div id ="game">
   			<p>Press "space" key to continue...</p>
-        <p>On the GAME screen, press "ENTER or RETURN key to start the game" </p>
+        <p>On the GAME screen, press "ENTER or RETURN key to start the game". </p>
+        <p>To pause the game press 'p' and to resume the game press 'r'.</p>
         <p>The losing is determined if the "primary ball", which is distinctly marked touches the ground.</p>
+
+        <div class="copyright">
+          &copy;By Rajesh Pillai
+       </div>
   		</div>
+      
   </div>
   <div id="canvas-wrapper">
 	  <canvas id="canvas" width="600px" height="600px">
 	     Your browser doesn't support the cool canvas features.
 	  </canvas>
  </div>
-
 </body>
 </html>

@@ -14,7 +14,7 @@ var Ball = function (x,y, radius, angle) {
      return (this.x + this.deltaX);
   };
 
-   Ball.prototype.getYBounds = function () {
+  Ball.prototype.getYBounds = function () {
      return (this.y + this.deltaY + this.radius);
   };
 
@@ -30,17 +30,36 @@ var Ball = function (x,y, radius, angle) {
     ctx.stroke(); 
 
     if (this.isPrimary) {
+      /*
       ctx.beginPath();
       ctx.fillStyle = "yellow";
       ctx.arc(this.x, this.y, this.radius/4, 0, this.angle, true);
       ctx.fill();
+      */
+      this.drawStar(ctx, this.x, this.y, 20, 5, 0.1)
     }
     ctx.restore();
 
   };
 
+  Ball.prototype.drawStar = function (ctx, x, y, r, p, m) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.translate(x, y);
+    ctx.moveTo(0,0-r);
+    for (var i = 0; i < p; i++)
+    {
+        ctx.rotate(Math.PI / p);
+        ctx.lineTo(0, 0 - (r*m));
+        ctx.rotate(Math.PI / p);
+        ctx.lineTo(0, 0 - r);
+    }
+    ctx.fill();
+    ctx.restore();
+  };
+
+ 
   Ball.prototype.move = function () {
-    //console.log(this.backgroundColor);
     this.clear();
 
     this.x = this.x + this.deltaX;
