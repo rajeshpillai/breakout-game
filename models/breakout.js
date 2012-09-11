@@ -24,7 +24,7 @@ Breakout.prototype.resume = function (that) {
   clearInterval(that.gameLoop);
   that.gameLoop = setInterval((function(self) {
     return function () {
-      self.moveBall(self);
+      self.animate(self);
     }
   })(that), 1000/60);
 }
@@ -84,8 +84,8 @@ Breakout.prototype.init = function () {
 
   Score.init(this.ctx);
   
-  this.ball = new Ball(50, 450, 12, 360);
-  this.paddle =  new  Paddle(40, 500,  80, 20,"orange");
+  this.ball = new Ball(this.ctx,50, 450, 12, 360);
+  this.paddle =  new  Paddle(this.ctx,40, 500,  80, 20,"orange");
   
   this.bricks = [
         [1,2,1,3,2,1,2,2],
@@ -171,9 +171,10 @@ Breakout.prototype.start = function () {
   this.ballObjects.push(this.ball);   
 
   clearInterval(that.gameLoop);
+
   that.gameLoop = setInterval((function(self) {
     return function () {
-      self.moveBall(self);
+      self.animate(self);
     }
   })(that), 1000/60);
 };
@@ -190,8 +191,12 @@ Breakout.prototype.endGame = function (that) {
 
 
 Breakout.prototype.draw = function () {
-  this.ball.draw(this.ctx);
   this.paddle.draw(this.ctx);
+
+  for(var i = 0; i < this.ballObjects.length; i++) {
+    this.ballObjects[i].move();
+  }
+  
   Score.update();
 
   var bricks = this.brickObjects;
@@ -236,7 +241,7 @@ Breakout.prototype.winMessage = function () {
   this.ctx.restore();
 }
 
-Breakout.prototype.moveBall = function(self) {
+Breakout.prototype.animate = function(self) {
   if (self.gameOver) {
     this.endGame(self);
     return;
@@ -244,15 +249,10 @@ Breakout.prototype.moveBall = function(self) {
   
   this.draw(); 
 
-  for(var i = 0; i < this.ballObjects.length; i++) {
-    this.ballObjects[i].move();
-  }
-  
+ 
   this.checkBallToWallCollision();
   this.checkBallToPaddleCollision();
   this.checkBallToBricksCollision();
-
-
 
   if (this.game.checkWinner()) {
     this.gameOver = true;
@@ -289,7 +289,7 @@ Breakout.prototype.incrementScore = function (value, ball) {
       break;
     case 3:
       increment = 15;
-      var ball = new Ball(this.randomRange(10,590), this.randomRange(80,400), 12, 360);
+      var ball = new Ball(this.ctx, this.randomRange(10,590), this.randomRange(80,400), 12, 360);
       ball.color = Color.getRandomColor();
       ball.isPrimary = false;
       ball.ctx = this.ctx;

@@ -1,4 +1,5 @@
-var Ball = function (x,y, radius, angle) {
+var Ball = function (ctx,x,y, radius, angle) {
+    this.ctx = ctx;
     this.x = x;
     this.y = y;
     this.deltaX = -2;
@@ -18,8 +19,8 @@ var Ball = function (x,y, radius, angle) {
      return (this.y + this.deltaY + this.radius);
   };
 
-  Ball.prototype.draw = function (ctx) {
-    this.ctx = ctx;
+  Ball.prototype.draw = function () {
+    var ctx = this.ctx;
     ctx.save();
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, this.angle, true);
@@ -30,13 +31,12 @@ var Ball = function (x,y, radius, angle) {
     ctx.stroke(); 
 
     if (this.isPrimary) {
-      /*
       ctx.beginPath();
       ctx.fillStyle = "yellow";
       ctx.arc(this.x, this.y, this.radius/4, 0, this.angle, true);
       ctx.fill();
-      */
-      this.drawStar(ctx, this.x, this.y, 20, 5, 0.1)
+      
+      //this.drawStar(ctx, this.x, this.y, 20, 5, 0.1)
     }
     ctx.restore();
 

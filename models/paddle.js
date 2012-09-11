@@ -1,4 +1,5 @@
-var Paddle = function (x,y,width,height,color) {
+var Paddle = function (ctx,x,y,width,height,color) {
+      this.ctx = ctx;
       this.color = color;
       this.width = width;
       this.height = height;
@@ -8,8 +9,7 @@ var Paddle = function (x,y,width,height,color) {
       this.deltaX = 10;
   };
 
-  Paddle.prototype.draw = function (ctx) {
-     this.ctx = this.ctx || ctx;
+  Paddle.prototype.draw = function () {
      this.ctx.fillStyle = this.color;
      this.ctx.fillRect(this.x,this.y,this.width, this.height);
   };
@@ -27,7 +27,7 @@ var Paddle = function (x,y,width,height,color) {
     if (dir === 'RIGHT') {
       this.x = this.x +  1 * Math.abs(this.deltaX);
     }
-    this.draw(this.ctx);
+    this.draw();
   };
 
   Paddle.prototype.clear = function () {

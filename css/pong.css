@@ -9,6 +9,7 @@ html, body {
      height:610px;
      margin: 0px auto;
      border: 2px solid rgb(50,50,50);
+     display: none;
 }
 
 #canvas {
