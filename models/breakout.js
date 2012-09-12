@@ -120,6 +120,16 @@ Breakout.prototype.init = function (level) {
   this.initializeBricks(level);
 };
 
+Breakout.prototype.updateStatus = function () {
+  this.ctx.save();
+  this.ctx.font = "12pt Geo";
+  this.ctx.fillStyle = "yellow";
+  this.ctx.strokeStyle ="blue";
+  this.ctx.fillRect(this.x,this.y,this.width, 100);
+  this.ctx.fillStyle = "blue";
+  this.ctx.fillText("LEVEL: " + this.gameLevel , 2, 566);
+  this.ctx.restore();
+};
 
 Breakout.prototype.buildBricks = function (level) {
   var brks = [];
@@ -129,7 +139,7 @@ Breakout.prototype.buildBricks = function (level) {
         for(var r = 0; r < 1; r++) {
           brks[r] = new Array(8);
           for (var c = 0; c < 8; c++) {
-              brks[r][c] = this.randomRange(3,3)
+              brks[r][c] = this.randomRange(1,3)
           }
         } 
         break;
@@ -145,7 +155,12 @@ Breakout.prototype.buildBricks = function (level) {
         for(var r = 0; r < 4; r++) {
           brks[r] = new Array(8);
           for (var c = 0; c < 8; c++) {
-              brks[r][c] = this.randomRange(1,3)
+              if (c % 2 === 0) {
+                brks[r][c] = this.randomRange(3,3)
+              }
+              else {
+                brks[r][c] = this.randomRange(1,3)
+              }
           }
         }  
         break;
@@ -168,19 +183,15 @@ Breakout.prototype.initializeBricks = function (level) {
       switch(that.bricks[r][c]) {
          case 0:
             brick.isActive = false;
-            brick.color = "black";
             brick.value = 0;
             break;
          case 1:
-            brick.color = "green";
             brick.value = 1;
             break;
          case 2:
-            brick.color = "yellow";
             brick.value = 2;
             break;
          case 3:
-            brick.color = "orange";
             brick.value = 3;
             break;
       }
@@ -201,6 +212,7 @@ Breakout.prototype.start = function () {
   Score.reset();
   this.gameOver = false;
 
+  this.updateStatus();
   
   this.ball.x = this.randomRange(10,590);
   this.ball.y = this.randomRange(80,400);
@@ -238,7 +250,6 @@ Breakout.prototype.draw = function () {
         bricks[i].color = this.backgroundColor;
     }
     bricks[i].draw(this.ctx);
-    
   }
 
   for(var i = 0; i < this.ballObjects.length; i++) {
@@ -280,7 +291,13 @@ Breakout.prototype.winMessage = function () {
   this.ctx.strokeStyle = "rgba(255,255,255,0.4)"; // 40% opaque white
   this.ctx.fillStyle = "#fff";
   this.ctx.fillText('Congratulations! You win.', this.canvas.width/2-40, this.canvas.height/4);
-  this.ctx.fillText('PRESS <ENTER> or <RETURN> key to go to LEVEL - ' + this.gameLevel, 30, this.canvas.height/2);
+ 
+  if (this.gameLevel < 3) {
+    this.ctx.fillText('PRESS <ENTER> or <RETURN> key to go to LEVEL - ' + this.gameLevel, 30, this.canvas.height/2);
+  }
+  else {
+    this.ctx.fillText('PRESS <ENTER> or <RETURN> to play the game again. Refresh your browser to begin from LEVEL 1.',30, this.canvas.height/2);  
+  }
   this.ctx.restore();
 
 }
@@ -290,6 +307,8 @@ Breakout.prototype.animate = function(self) {
     this.endGame(self);
     return;
   }
+
+  this.updateStatus();
 
   this.checkBallToBricksCollision();
   
@@ -368,22 +387,34 @@ Breakout.prototype.decrementScore = function (ball) {
 
 
 Breakout.prototype.checkBallToBricksCollision = function() {
-  var bricks = this.brickObjects;
 
-  for (var i = 0; i < bricks.length; i++) {
+  for (var i = 0; i < this.brickObjects.length; i++) {
     for (var ballIndex = 0; ballIndex < this.ballObjects.length; ballIndex++) {
-      if (this.ballObjects[ballIndex].getYBounds() <= bricks[i].y + bricks[i].height){
-       if (this.ballObjects[ballIndex].getXBounds() >= bricks[i].x && 
-            this.ballObjects[ballIndex].getXBounds() <= bricks[i].x + bricks[i].width) {
+      if (this.ballObjects[ballIndex].getYBounds() <= this.brickObjects[i].y + this.brickObjects[i].height){
+       if (this.ballObjects[ballIndex].getXBounds() >= this.brickObjects[i].x && 
+            this.ballObjects[ballIndex].getXBounds() <= this.brickObjects[i].x + this.brickObjects[i].width) {
             
-            if (bricks[i].isActive) {
+            if (this.brickObjects[i].isActive) {
               this.breakingSound.play();
               this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
-              bricks[i].isActive = false;
+
+              this.incrementScore(this.brickObjects[i].value, this.ballObjects[ballIndex]);
+
+              //-- begin todo
+              this.brickObjects[i].value = this.brickObjects[i].value-1;
+              
+              if (this.brickObjects[i].value < 1) {
+                this.brickObjects[i].isActive = false;
+              }
+
+              this.brickObjects[i].draw();
+
+              Debugger.log("Brick value " + this.brickObjects[i].value);
+
+              // -- end todo
               
               this.ballObjects[ballIndex].backgroundColor = this.ballObjects[ballIndex].color; //bricks[i].color; // todo
 
-              this.incrementScore(bricks[i].value, this.ballObjects[ballIndex]);
             }
         }
       }
@@ -446,6 +477,9 @@ Breakout.prototype.checkBallCollision = function (ball0, ball1) {
             // Added
             ball0.deltaY = ball0.deltaY * -1;
             ball1.deltaY = ball1.deltaY * -1;
+
+            ball1.x++;
+            ball0.x--;
       }
 }
 Breakout.prototype.checkBallToWallCollision = function () {

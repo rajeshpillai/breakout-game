@@ -17,7 +17,6 @@ var Score = {
 		this.update();
 	},
 	decrement: function (score) {
-		console.log("Decre by " + score);
 		this.points -= score;
 		this.update();
 	},

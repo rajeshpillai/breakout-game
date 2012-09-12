@@ -20,7 +20,6 @@ var Ball = function (ctx,x,y, radius, angle) {
   };
 
   Ball.prototype.draw = function () {
-    console.log("Ball color: " + this.color);
     var ctx = this.ctx;
     ctx.save();
     ctx.beginPath();

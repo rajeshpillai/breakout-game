@@ -9,16 +9,40 @@ Brick = function (x,y,width,height,color) {
       this.backgroundColor = "black";
 };
 
+Brick.prototype.setColor = function () {
+   switch(this.value) {
+         case 0:
+            this.isActive = false;
+            this.color = "black";
+            this.value = 0;
+            break;
+         case 1:
+            this.color = "gray";
+            this.value = 1;
+            break;
+         case 2:
+            this.color = "lime";
+            this.value = 2;
+            break;
+         case 3:
+            this.color = "green";
+            this.value = 3;
+            break;
+      }
+}
+
 Brick.prototype.draw = function (ctx) {
    this.ctx = this.ctx || ctx;
-   console.log(this.color);
+
+   this.setColor();
+
    this.ctx.fillStyle = this.color;
    this.ctx.fillRect(this.x,this.y,this.width, this.height);
    this.ctx.strokeRect(this.x, this.y, this.width,this.height);
    if (this.isActive) {
       //this.ctx.strokeRect(this.x+1,this.y+1,this.width-2,this.height-2);
       if (this.value === 3) {
-         this.drawStar(ctx);
+         this.drawStar(this.ctx);
       }
    }
 };
