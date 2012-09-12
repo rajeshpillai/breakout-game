@@ -36,7 +36,7 @@ Breakout.prototype.captureKeys = function () {
       if (evt.keyCode === 13) {
         if (that.gameLoop === null) {
           that.clear();
-          that.init();
+          that.init(that.gameLevel);
           that.start();
         }
       }
@@ -77,7 +77,8 @@ Breakout.prototype.captureKeys = function () {
   
 };
 
-Breakout.prototype.init = function () {
+Breakout.prototype.init = function (level) {
+
   var that = this;
 
   this.canvas = $("#canvas")[0];
@@ -91,27 +92,13 @@ Breakout.prototype.init = function () {
 
   this.paddle =  new  Paddle(this.ctx,40, 500,  80, 10,"orange");
   
+  this.bricks = [];
+
   this.bricksxxx = [
         [1,2,1,3,2,1,2,2],
         [1,1,2,1,0,3,1,1],
         [2,1,3,1,2,1,0,1],
         [3,2,2,2,0,2,1,1]
-      ];
-
-  
-
-       this.bricksxxx = [
-        [0,0,0,0,3,3,3,3],
-        [0,0,0,0,3,3,3,3],
-        [0,0,0,0,3,3,3,3],
-        [0,0,0,0,3,3,3,3]
-      ];
-
-       this.bricks = [
-        [3,3,3,3,3,3,3,3],
-        [3,3,3,3,3,3,3,3],
-        [3,3,3,3,3,3,3,3],
-        [3,3,3,3,3,3,3,3]
       ];
 
   this.brickObjects = [];
@@ -130,10 +117,49 @@ Breakout.prototype.init = function () {
   
   this.captureKeys();
 
+  this.initializeBricks(level);
+};
+
+
+Breakout.prototype.buildBricks = function (level) {
+  var brks = [];
+  level = level || 1;
+  switch(level) {
+     case 1:
+        for(var r = 0; r < 1; r++) {
+          brks[r] = new Array(8);
+          for (var c = 0; c < 8; c++) {
+              brks[r][c] = this.randomRange(3,3)
+          }
+        } 
+        break;
+     case 2:
+      for(var r = 0; r < 3; r++) {
+          brks[r] = new Array(8);
+          for (var c = 0; c < 8; c++) {
+              brks[r][c] = this.randomRange(1,3)
+          }
+        } 
+        break;
+     case 3:
+        for(var r = 0; r < 4; r++) {
+          brks[r] = new Array(8);
+          for (var c = 0; c < 8; c++) {
+              brks[r][c] = this.randomRange(1,3)
+          }
+        }  
+        break;
+  }
+  return brks;
+};
+
+Breakout.prototype.initializeBricks = function (level) {
+  var that = this;
   var bricksPerRow = 8;               
   var brickHeight = 20;
   var brickWidth = this.canvas.width/bricksPerRow;
-
+  
+  that.bricks = this.buildBricks(level);
 
   for (var r=0; r < that.bricks.length; r++) {
     for (var c=0; c < that.bricks[r].length; c++) {
@@ -162,7 +188,7 @@ Breakout.prototype.init = function () {
       that.brickObjects.push(brick);
     }
   }
-};
+}
 
 Breakout.prototype.randomRange = function(min, max) {
     return Math.floor(Math.random() * (max + 1 -min)) + min;
@@ -241,6 +267,8 @@ Breakout.prototype.checkWinner = function () {
 };
 
 Breakout.prototype.winMessage = function () {
+  this.gameLevel++;
+
   this.ctx.save();
 
   this.ctx.shadowColor = 'red';
@@ -252,8 +280,9 @@ Breakout.prototype.winMessage = function () {
   this.ctx.strokeStyle = "rgba(255,255,255,0.4)"; // 40% opaque white
   this.ctx.fillStyle = "#fff";
   this.ctx.fillText('Congratulations! You win.', this.canvas.width/2-40, this.canvas.height/4);
-  this.ctx.fillText('PRESS <ENTER> or <RETURN> key to start the game.', 30, this.canvas.height/2);
+  this.ctx.fillText('PRESS <ENTER> or <RETURN> key to go to LEVEL - ' + this.gameLevel, 30, this.canvas.height/2);
   this.ctx.restore();
+
 }
 
 Breakout.prototype.animate = function(self) {
@@ -348,7 +377,7 @@ Breakout.prototype.checkBallToBricksCollision = function() {
             this.ballObjects[ballIndex].getXBounds() <= bricks[i].x + bricks[i].width) {
             
             if (bricks[i].isActive) {
-              //this.breakingSound.play();
+              this.breakingSound.play();
               this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
               bricks[i].isActive = false;
               
@@ -369,7 +398,7 @@ Breakout.prototype.checkBallToPaddleCollision = function () {
       // and it is positioned between the two ends of the paddle (is on top)
       if (this.ballObjects[index].x + this.ballObjects[index].deltaX >= this.paddle.x && 
         this.ballObjects[index].x + this.ballObjects[index].deltaX <= this.paddle.x + this.paddle.width){
-          //this.bouncingSound.play();
+          this.bouncingSound.play();
           this.ballObjects[index].deltaY = - this.ballObjects[index].deltaY;
       }
     }
