@@ -67,10 +67,10 @@ Breakout.prototype.captureKeys = function () {
   
   $(document).on("keyup",function(evt) {
       if (that.paddleMove === 'LEFT') {
-        that.paddle.deltaX = -2;
+        that.paddle.deltaX = -5;
       } 
       else if(that.paddleMove === 'RIGHT'){
-        that.paddle.deltaX = 2;
+        that.paddle.deltaX = 5;
       }
   }); 
   

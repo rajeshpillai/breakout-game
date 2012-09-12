@@ -6,7 +6,7 @@ var Paddle = function (ctx,x,y,width,height,color) {
       this.x = x;
       this.y = y;
       this.dir = "NONE";
-      this.deltaX = 10;
+      this.deltaX = 5;
       this.animateStep = 1;
       this.acceleration = 0;
   };
