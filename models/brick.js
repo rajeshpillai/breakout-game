@@ -14,9 +14,9 @@ Brick.prototype.draw = function (ctx) {
 
    this.ctx.fillStyle = this.color;
    this.ctx.fillRect(this.x,this.y,this.width, this.height);
+   this.ctx.strokeRect(this.x, this.y, this.width,this.height);
    if (this.isActive) {
       this.ctx.strokeRect(this.x+1,this.y+1,this.width-2,this.height-2);
-
       if (this.value === 3) {
          this.drawStar(ctx);
       }

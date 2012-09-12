@@ -61,18 +61,19 @@ Breakout.prototype.captureKeys = function () {
     } else if (evt.keyCode === 37){
         that.paddleMove = 'LEFT';
     }
-    that.movePaddle(that.paddleMove);
+    that.movePaddle(that.paddleMove, that.paddle.deltaX);
   });         
 
-  /*
+  
   $(document).on("keyup",function(evt) {
-      if (evt.keyCode == 39) {
-          that.paddleMove = 'RIGHTNONE';
-      } else if (evt.keyCode == 37){
-          that.paddleMove = 'LEFTNONE';
+      if (that.paddleMove === 'LEFT') {
+        that.paddle.deltaX = -2;
+      } 
+      else if(that.paddleMove === 'RIGHT'){
+        that.paddle.deltaX = 2;
       }
   }); 
-  */
+  
 };
 
 Breakout.prototype.init = function () {
@@ -85,6 +86,8 @@ Breakout.prototype.init = function () {
   Score.init(this.ctx);
   
   this.ball = new Ball(this.ctx,50, 450, 12, 360);
+  this.ball.color = "red";
+
   this.paddle =  new  Paddle(this.ctx,40, 500,  80, 20,"orange");
   
   this.bricks = [
@@ -94,7 +97,16 @@ Breakout.prototype.init = function () {
         [3,2,2,2,0,2,1,1]
       ];
 
-   this.bricks = [
+  
+
+       this.bricks = [
+        [0,0,0,0,3,3,3,3],
+        [0,0,0,0,3,3,3,3],
+        [0,0,0,0,3,3,3,3],
+        [0,0,0,0,3,3,3,3]
+      ];
+
+       this.bricks = [
         [3,3,3,3,3,3,3,3],
         [3,3,3,3,3,3,3,3],
         [3,3,3,3,3,3,3,3],
@@ -193,12 +205,6 @@ Breakout.prototype.endGame = function (that) {
 Breakout.prototype.draw = function () {
   this.paddle.draw(this.ctx);
 
-  for(var i = 0; i < this.ballObjects.length; i++) {
-    this.ballObjects[i].move();
-  }
-  
-  Score.update();
-
   var bricks = this.brickObjects;
   for (var i = 0; i < bricks.length; i++) {
     if (!bricks[i].isActive) {
@@ -207,6 +213,14 @@ Breakout.prototype.draw = function () {
     bricks[i].draw(this.ctx);
     
   }
+
+  for(var i = 0; i < this.ballObjects.length; i++) {
+    this.ballObjects[i].move();
+  }
+  
+  Score.update();
+
+
 };
 
 Breakout.prototype.clear = function () {
@@ -246,33 +260,46 @@ Breakout.prototype.animate = function(self) {
     this.endGame(self);
     return;
   }
+
+  this.checkBallToBricksCollision();
   
   this.draw(); 
+  this.movePaddle(this.paddle.dir,this.paddle.deltaX);
 
- 
-  this.checkBallToWallCollision();
   this.checkBallToPaddleCollision();
+  this.checkBallToWallCollision();
   this.checkBallToBricksCollision();
 
   if (this.game.checkWinner()) {
     this.gameOver = true;
     this.clear();
-
     this.winMessage();
-    
     Score.update();
   }
 
   this.handleBallCollision();
+};
 
-  /*
-  if (self.paddleMove === 'RIGHTNONE') {
-    self.movePaddle('RIGHT',2);
-  }
-  else {
-    self.movePaddle('LEFT',-2);
-  }
-  */
+Breakout.prototype.movePaddle = function(dir, delta) {
+   if (this.isPaused) {
+      return;
+   }
+   if (this.paddle.x < 10) {
+      this.paddle.deltaX = 0;
+   }
+  
+   if (this.paddle.x > 500) {
+      this.paddle.deltaX = 0;
+   }
+
+   if (this.paddle.x < 10 && dir === 'RIGHT') {
+      this.paddle.deltaX = delta || 5;
+   }
+   else if (this.paddle.x > 500 && dir === 'LEFT') {
+      this.paddle.deltaX = delta || -5;
+   }
+   this.paddle.move(dir);
+   this.checkBallToPaddleCollision();
 
 };
 
@@ -421,26 +448,3 @@ Breakout.prototype.checkBallToWallCollision = function () {
     }
 };
 
-Breakout.prototype.movePaddle = function(dir, delta) {
-   if (this.isPaused) {
-      return;
-   }
-   if (this.paddle.x < 10) {
-      this.paddle.deltaX = 0;
-   }
-  
-   if (this.paddle.x > 500) {
-      this.paddle.deltaX = 0;
-   }
-
-   if (this.paddle.x < 10 && dir === 'RIGHT') {
-      this.paddle.deltaX = delta || 5;
-   }
-
-   if (this.paddle.x > 500 && dir === 'LEFT') {
-      this.paddle.deltaX = delta || -5;
-   }
-   
-   this.paddle.move(dir);
-   this.checkBallToPaddleCollision();
-};

@@ -20,6 +20,7 @@ var Ball = function (ctx,x,y, radius, angle) {
   };
 
   Ball.prototype.draw = function () {
+    console.log("Ball color: " + this.color);
     var ctx = this.ctx;
     ctx.save();
     ctx.beginPath();
@@ -35,11 +36,9 @@ var Ball = function (ctx,x,y, radius, angle) {
       ctx.fillStyle = "yellow";
       ctx.arc(this.x, this.y, this.radius/4, 0, this.angle, true);
       ctx.fill();
-      
       //this.drawStar(ctx, this.x, this.y, 20, 5, 0.1)
     }
     ctx.restore();
-
   };
 
   Ball.prototype.drawStar = function (ctx, x, y, r, p, m) {
@@ -61,7 +60,6 @@ var Ball = function (ctx,x,y, radius, angle) {
  
   Ball.prototype.move = function () {
     this.clear();
-
     this.x = this.x + this.deltaX;
     this.y = this.y + this.deltaY;
     this.draw(this.ctx);
