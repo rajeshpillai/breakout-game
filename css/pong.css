@@ -3,7 +3,31 @@ html, body {
   padding:0;
   background: black;
 }
+.level
+{
+  padding: 5px;
+  margin: 10px auto;
+  width: 100px;
+  border: 1px solid yellow;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
 
+}
+
+.badge{
+   margin: 10px auto;
+  width: 100px;
+  background: yellow;
+
+  border: 1px solid yellow;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  color: black;
+}
 #canvas-wrapper {
     width: 600px;
      height:610px;

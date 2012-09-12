@@ -9,6 +9,7 @@ var Breakout = function () {
   if (!(this instanceof Breakout)) {
       return new Breakout();
   }
+  this.gameLevel = 1;
   this.gameLoop = null;
   this.isPaused = false;
   this.init();
@@ -67,10 +68,10 @@ Breakout.prototype.captureKeys = function () {
   
   $(document).on("keyup",function(evt) {
       if (that.paddleMove === 'LEFT') {
-        that.paddle.deltaX = -5;
+        that.paddle.deltaX = -3;
       } 
       else if(that.paddleMove === 'RIGHT'){
-        that.paddle.deltaX = 5;
+        that.paddle.deltaX = 3;
       }
   }); 
   
@@ -88,9 +89,9 @@ Breakout.prototype.init = function () {
   this.ball = new Ball(this.ctx,50, 450, 12, 360);
   this.ball.color = "red";
 
-  this.paddle =  new  Paddle(this.ctx,40, 500,  80, 20,"orange");
+  this.paddle =  new  Paddle(this.ctx,40, 500,  80, 10,"orange");
   
-  this.bricks = [
+  this.bricksxxx = [
         [1,2,1,3,2,1,2,2],
         [1,1,2,1,0,3,1,1],
         [2,1,3,1,2,1,0,1],
@@ -99,7 +100,7 @@ Breakout.prototype.init = function () {
 
   
 
-       this.bricks = [
+       this.bricksxxx = [
         [0,0,0,0,3,3,3,3],
         [0,0,0,0,3,3,3,3],
         [0,0,0,0,3,3,3,3],
@@ -138,7 +139,7 @@ Breakout.prototype.init = function () {
     for (var c=0; c < that.bricks[r].length; c++) {
       var brick = new Brick(c * brickWidth,r * brickHeight, brickWidth, brickHeight, "brown");
       
-      switch(this.bricks[r][c]) {
+      switch(that.bricks[r][c]) {
          case 0:
             brick.isActive = false;
             brick.color = "black";
@@ -269,6 +270,7 @@ Breakout.prototype.animate = function(self) {
   this.checkBallToPaddleCollision();
   this.checkBallToWallCollision();
   this.checkBallToBricksCollision();
+  this.handleBallCollision();
 
   if (this.game.checkWinner()) {
     this.gameOver = true;
@@ -276,8 +278,8 @@ Breakout.prototype.animate = function(self) {
     this.winMessage();
     Score.update();
   }
+  Score.update();
 
-  this.handleBallCollision();
 };
 
 Breakout.prototype.movePaddle = function(dir, delta) {
@@ -320,8 +322,8 @@ Breakout.prototype.incrementScore = function (value, ball) {
       ball.color = Color.getRandomColor();
       ball.isPrimary = false;
       ball.ctx = this.ctx;
-      ball.deltaX = -1;
-      ball.deltaY = -2;
+      ball.deltaX = -2;
+      ball.deltaY = -3;
       this.ballObjects.push(ball);
       break;
   }
@@ -330,6 +332,11 @@ Breakout.prototype.incrementScore = function (value, ball) {
   }
   Score.increment(increment);
 };
+
+Breakout.prototype.decrementScore = function (ball) {
+  Score.decrement(10);
+};
+
 
 Breakout.prototype.checkBallToBricksCollision = function() {
   var bricks = this.brickObjects;
@@ -345,7 +352,7 @@ Breakout.prototype.checkBallToBricksCollision = function() {
               this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
               bricks[i].isActive = false;
               
-              this.ballObjects[ballIndex].backgroundColor = bricks[i].color; // todo
+              this.ballObjects[ballIndex].backgroundColor = this.ballObjects[ballIndex].color; //bricks[i].color; // todo
 
               this.incrementScore(bricks[i].value, this.ballObjects[ballIndex]);
             }
@@ -403,9 +410,13 @@ Breakout.prototype.checkBallCollision = function (ball0, ball1) {
       dist = Math.sqrt(dx * dx + dy * dy);
       
       //collision handling code here
-      if (dist < ball0.radius + ball1.radius) {
+      if (dist <= ball0.radius + ball1.radius) {
             ball0.deltaX = ball0.deltaX * -1;
             ball1.deltaX = ball1.deltaX * -1;
+
+            // Added
+            ball0.deltaY = ball0.deltaY * -1;
+            ball1.deltaY = ball1.deltaY * -1;
       }
 }
 Breakout.prototype.checkBallToWallCollision = function () {
@@ -441,8 +452,10 @@ Breakout.prototype.checkBallToWallCollision = function () {
            Score.update();
         }
         else {
+          this.decrementScore(this.ballObjects[index]);
           this.ballObjects[index].clear();
           this.ballObjects.remove(index);
+          Score.update();
         }
       }
     }

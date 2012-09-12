@@ -16,6 +16,11 @@ var Score = {
 		this.points += score;
 		this.update();
 	},
+	decrement: function (score) {
+		console.log("Decre by " + score);
+		this.points -= score;
+		this.update();
+	},
 	update: function () {
 		this.clear();
 		this.ctx.save();
