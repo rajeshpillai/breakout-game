@@ -34,6 +34,7 @@ Brick.prototype.setColor = function () {
 Brick.prototype.draw = function (ctx) {
    this.ctx = this.ctx || ctx;
 
+   this.ctx.save();
    this.setColor();
 
    this.ctx.fillStyle = this.color;
@@ -45,6 +46,7 @@ Brick.prototype.draw = function (ctx) {
          this.drawStar(this.ctx);
       }
    }
+   this.ctx.restore();
 };
 
 Brick.prototype.drawStar = function (ctx) {

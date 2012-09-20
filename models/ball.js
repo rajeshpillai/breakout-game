@@ -9,14 +9,27 @@ var Ball = function (ctx,x,y, radius, angle) {
     this.angle = angle * Math.PI/180;
     this.color = "red";
     this.isPrimary = true;
+    this.nextx = 0;
+    this.nexty = 0;
   };
+
+  Ball.prototype.nextx = function () {
+    this.nextx = (this.x += this.deltaX);
+    return this.nextx;
+  };
+
+  Ball.prototype.nexty = function () {
+    this.nexty = (this.y += this.deltaY);
+    return this.nexty;
+  };
+
 
   Ball.prototype.getXBounds = function () {
      return (this.x + this.deltaX);
   };
 
   Ball.prototype.getYBounds = function () {
-     return (this.y + this.deltaY + this.radius);
+     return (this.y + this.radius);
   };
 
   Ball.prototype.draw = function () {
@@ -58,7 +71,7 @@ var Ball = function (ctx,x,y, radius, angle) {
 
  
   Ball.prototype.move = function () {
-    this.clear();
+    //this.clear();
     this.x = this.x + this.deltaX;
     this.y = this.y + this.deltaY;
     this.draw(this.ctx);

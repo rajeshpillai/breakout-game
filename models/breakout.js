@@ -2,13 +2,13 @@
 
 $(function () {
   breakOut = new Breakout();
-  
 });
 
 var Breakout = function () {
   if (!(this instanceof Breakout)) {
       return new Breakout();
   }
+  this.trialRun = false;
   this.gameLevel = 1;
   this.gameLoop = null;
   this.isPaused = false;
@@ -83,23 +83,16 @@ Breakout.prototype.init = function (level) {
 
   this.canvas = $("#canvas")[0];
   this.ctx = canvas.getContext('2d');
-  this.backgroundColor = "black";
+  this.backgroundColor = "white";
 
   Score.init(this.ctx);
   
   this.ball = new Ball(this.ctx,50, 450, 12, 360);
   this.ball.color = "red";
 
-  this.paddle =  new  Paddle(this.ctx,40, 500,  80, 10,"orange");
+  this.paddle =  new Paddle(this.ctx,40, 500,  80, 20,"orange");
   
   this.bricks = [];
-
-  this.bricksxxx = [
-        [1,2,1,3,2,1,2,2],
-        [1,1,2,1,0,3,1,1],
-        [2,1,3,1,2,1,0,1],
-        [3,2,2,2,0,2,1,1]
-      ];
 
   this.brickObjects = [];
   this.ballObjects = [];
@@ -118,6 +111,10 @@ Breakout.prototype.init = function (level) {
   this.captureKeys();
 
   this.initializeBricks(level);
+  this.initializeActors(level);
+};
+
+Breakout.prototype.initializeActors = function (level) {
 };
 
 Breakout.prototype.updateStatus = function () {
@@ -144,7 +141,7 @@ Breakout.prototype.buildBricks = function (level) {
         } 
         break;
      case 2:
-      for(var r = 0; r < 3; r++) {
+      for(var r = 0; r < 2; r++) {
           brks[r] = new Array(8);
           for (var c = 0; c < 8; c++) {
               brks[r][c] = this.randomRange(1,3)
@@ -152,7 +149,7 @@ Breakout.prototype.buildBricks = function (level) {
         } 
         break;
      case 3:
-        for(var r = 0; r < 4; r++) {
+        for(var r = 0; r < 3; r++) {
           brks[r] = new Array(8);
           for (var c = 0; c < 8; c++) {
               if (c % 2 === 0) {
@@ -208,6 +205,7 @@ Breakout.prototype.randomRange = function(min, max) {
 Breakout.prototype.start = function () {
   var that = this;
   that.clear();
+  //this.ctx.globalAlpha = "0.4";
 
   Score.reset();
   this.gameOver = false;
@@ -257,12 +255,13 @@ Breakout.prototype.draw = function () {
   }
   
   Score.update();
-
-
 };
 
 Breakout.prototype.clear = function () {
+   this.ctx.save();
+   this.ctx.fillStyle =this.backgroundColor;
    this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
+   this.ctx.restore();
 };
 
 Breakout.prototype.checkWinner = function () {
@@ -303,6 +302,7 @@ Breakout.prototype.winMessage = function () {
 }
 
 Breakout.prototype.animate = function(self) {
+  this.clear();
   if (self.gameOver) {
     this.endGame(self);
     return;
@@ -334,11 +334,11 @@ Breakout.prototype.movePaddle = function(dir, delta) {
    if (this.isPaused) {
       return;
    }
-   if (this.paddle.x < 10) {
+   if (this.paddle.x < 5) {
       this.paddle.deltaX = 0;
    }
   
-   if (this.paddle.x > 500) {
+   if (this.paddle.x > 510) {
       this.paddle.deltaX = 0;
    }
 
@@ -390,17 +390,17 @@ Breakout.prototype.checkBallToBricksCollision = function() {
 
   for (var i = 0; i < this.brickObjects.length; i++) {
     for (var ballIndex = 0; ballIndex < this.ballObjects.length; ballIndex++) {
-      if (this.ballObjects[ballIndex].getYBounds() <= this.brickObjects[i].y + this.brickObjects[i].height){
+      if (this.ballObjects[ballIndex].getYBounds() <= this.brickObjects[i].y + this.brickObjects[i].height+20){
        if (this.ballObjects[ballIndex].getXBounds() >= this.brickObjects[i].x && 
             this.ballObjects[ballIndex].getXBounds() <= this.brickObjects[i].x + this.brickObjects[i].width) {
             
             if (this.brickObjects[i].isActive) {
-              this.breakingSound.play();
-              this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
+              //this.breakingSound.play();
+              //this.ballObjects[ballIndex].deltaY = -this.ballObjects[ballIndex].deltaY;
+              this.ballObjects[ballIndex].deltaY = Math.abs(this.ballObjects[ballIndex].deltaY);
 
               this.incrementScore(this.brickObjects[i].value, this.ballObjects[ballIndex]);
 
-              //-- begin todo
               this.brickObjects[i].value = this.brickObjects[i].value-1;
               
               if (this.brickObjects[i].value < 1) {
@@ -408,13 +408,9 @@ Breakout.prototype.checkBallToBricksCollision = function() {
               }
 
               this.brickObjects[i].draw();
-
               Debugger.log("Brick value " + this.brickObjects[i].value);
-
-              // -- end todo
               
               this.ballObjects[ballIndex].backgroundColor = this.ballObjects[ballIndex].color; //bricks[i].color; // todo
-
             }
         }
       }
@@ -429,12 +425,13 @@ Breakout.prototype.checkBallToPaddleCollision = function () {
       // and it is positioned between the two ends of the paddle (is on top)
       if (this.ballObjects[index].x + this.ballObjects[index].deltaX >= this.paddle.x && 
         this.ballObjects[index].x + this.ballObjects[index].deltaX <= this.paddle.x + this.paddle.width){
-          this.bouncingSound.play();
+          //this.bouncingSound.play();
           this.ballObjects[index].deltaY = - this.ballObjects[index].deltaY;
       }
     }
   }
 }
+
 
 Breakout.prototype.lostMessage = function () {
    this.ctx.save();
@@ -482,6 +479,8 @@ Breakout.prototype.checkBallCollision = function (ball0, ball1) {
             ball0.x--;
       }
 }
+
+
 Breakout.prototype.checkBallToWallCollision = function () {
     for(var index = 0; index < this.ballObjects.length; index++) {  
       // check left collision
@@ -503,24 +502,34 @@ Breakout.prototype.checkBallToWallCollision = function () {
       if (this.ballObjects[index].deltaY < 0 && this.ballObjects[index].x >= 595) {
           this.ballObjects[index].deltaX = -1 * this.ballObjects[index].deltaX;
       }
-        
+      
+       
       if (this.ballObjects[index].y >= 550) {
         if (this.ballObjects[index].isPrimary) {
-           this.clear();
-
-           this.lostMessage();
-          
-           this.gameOver = true;
-           this.endGame(this);
-           Score.update();
+           if (this.trialRun) {
+              this.ballObjects[index].deltaY  = -1 * Math.abs(this.ballObjects[index].deltaY);
+           } 
+           else {
+              this.clear();
+              this.lostMessage();
+              this.gameOver = true;
+              this.endGame(this);
+              Score.update();
+           }
         }
         else {
-          this.decrementScore(this.ballObjects[index]);
-          this.ballObjects[index].clear();
-          this.ballObjects.remove(index);
-          Score.update();
+          if (this.trialRun) {
+              this.ballObjects[index].deltaY  = -1 * Math.abs(this.ballObjects[index].deltaY);
+          }
+          else {
+            this.decrementScore(this.ballObjects[index]);
+            this.ballObjects[index].clear();
+            this.ballObjects.remove(index);
+            Score.update();
+          }
         }
       }
+
     }
 };
 

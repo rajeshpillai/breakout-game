@@ -24,7 +24,7 @@ var Paddle = function (ctx,x,y,width,height,color) {
 
   Paddle.prototype.move = function (dir) {
     this.dir = dir;
-    this.clear();
+    //this.clear();
     if (dir === 'LEFT') {
       this.x = this.x - 1 * Math.abs(this.deltaX + this.acceleration);
     }
