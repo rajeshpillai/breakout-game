@@ -30,6 +30,8 @@ Breakout.prototype.resume = function (that) {
   })(that), 1000/60);
 }
 
+
+// Game entry point capture key
 Breakout.prototype.captureKeys = function () {
   var that = this;
   $(document).on("keyup",function(evt) {
@@ -62,7 +64,9 @@ Breakout.prototype.captureKeys = function () {
     } else if (evt.keyCode === 37){
         that.paddleMove = 'LEFT';
     }
-    that.movePaddle(that.paddleMove, that.paddle.deltaX);
+    if (that.isGameInProgress) {
+       that.movePaddle(that.paddleMove, that.paddle.deltaX);
+    }
   });         
 
   
@@ -128,6 +132,9 @@ Breakout.prototype.updateStatus = function () {
   this.ctx.restore();
 };
 
+/*
+The bricks the constructed based on the level
+*/
 Breakout.prototype.buildBricks = function (level) {
   var brks = [];
   level = level || 1;
@@ -206,18 +213,17 @@ Breakout.prototype.start = function () {
   var that = this;
   that.clear();
   //this.ctx.globalAlpha = "0.4";
-
   Score.reset();
-  this.gameOver = false;
-
-  this.updateStatus();
+  that.gameOver = false;
+  that.isGameInProgress = true;
+  that.updateStatus();
   
-  this.ball.x = this.randomRange(10,590);
-  this.ball.y = this.randomRange(80,400);
+  that.ball.x = that.randomRange(10,590);
+  that.ball.y = that.randomRange(80,400);
 
-  this.ballObjects = [];
+  that.ballObjects = [];
 
-  this.ballObjects.push(this.ball);   
+  that.ballObjects.push(that.ball);   
 
   clearInterval(that.gameLoop);
 
