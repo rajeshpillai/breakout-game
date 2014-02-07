@@ -73,8 +73,8 @@ Breakout.prototype.captureKeys = function () {
   });         
 };
 
+// Initialize the game
 Breakout.prototype.init = function (level) {
-
   var that = this;
 
   this.canvas = $("#canvas")[0];
@@ -113,6 +113,7 @@ Breakout.prototype.init = function (level) {
 Breakout.prototype.initializeActors = function (level) {
 };
 
+// Update Game Status
 Breakout.prototype.updateStatus = function () {
   this.ctx.save();
   this.ctx.font = "12pt Geo";
@@ -197,10 +198,12 @@ Breakout.prototype.initializeBricks = function (level) {
   }
 }
 
+// Create random number
 Breakout.prototype.randomRange = function(min, max) {
     return Math.floor(Math.random() * (max + 1 -min)) + min;
 };
 
+// Start the Game
 Breakout.prototype.start = function () {
   var that = this;
   that.clear();
@@ -226,6 +229,7 @@ Breakout.prototype.start = function () {
   })(that), 1000/60);
 };
 
+// Endgame and disable all key events
 Breakout.prototype.endGame = function (that) {
    clearInterval(that.gameLoop);
    that.gameLoop = null;
@@ -237,6 +241,7 @@ Breakout.prototype.endGame = function (that) {
 };
 
 
+// Draw the game
 Breakout.prototype.draw = function () {
   this.paddle.draw(this.ctx);
 
@@ -262,6 +267,7 @@ Breakout.prototype.clear = function () {
    this.ctx.restore();
 };
 
+// Check if there is a winner
 Breakout.prototype.checkWinner = function () {
   var result = true;
   var bricks = this.brickObjects;
@@ -274,6 +280,7 @@ Breakout.prototype.checkWinner = function () {
   return result;
 };
 
+// Show win message
 Breakout.prototype.winMessage = function () {
   this.gameLevel++;
 
@@ -299,6 +306,7 @@ Breakout.prototype.winMessage = function () {
 
 }
 
+// Restart the game.. need better name here
 Breakout.prototype.animate = function(self) {
   this.clear();
   if (self.gameOver) {
@@ -328,6 +336,7 @@ Breakout.prototype.animate = function(self) {
 
 };
 
+// Move the paddler
 Breakout.prototype.movePaddle = function(dir, delta) {
    if (this.isPaused) {
       return;
@@ -351,6 +360,7 @@ Breakout.prototype.movePaddle = function(dir, delta) {
 
 };
 
+// Increment the score
 Breakout.prototype.incrementScore = function (value, ball) {
   var increment = 10;
   switch(value) {
@@ -379,13 +389,14 @@ Breakout.prototype.incrementScore = function (value, ball) {
   Score.increment(increment);
 };
 
+// Decrement the score
 Breakout.prototype.decrementScore = function (ball) {
   Score.decrement(10);
 };
 
 
+// Check ball to brick collision: This code needs some love and tuning
 Breakout.prototype.checkBallToBricksCollision = function() {
-
   for (var i = 0; i < this.brickObjects.length; i++) {
     for (var ballIndex = 0; ballIndex < this.ballObjects.length; ballIndex++) {
       if (this.ballObjects[ballIndex].getYBounds() <= this.brickObjects[i].y + this.brickObjects[i].height+20){
@@ -416,6 +427,7 @@ Breakout.prototype.checkBallToBricksCollision = function() {
   }  
 };
 
+// Check ball to paddle collision
 Breakout.prototype.checkBallToPaddleCollision = function () {
   for(var index = 0; index < this.ballObjects.length; index++) {
     // if bottom of ball reaches the top of paddle,
@@ -431,6 +443,7 @@ Breakout.prototype.checkBallToPaddleCollision = function () {
 }
 
 
+// Show loser message
 Breakout.prototype.lostMessage = function () {
    this.ctx.save();
 
@@ -451,6 +464,7 @@ Breakout.prototype.lostMessage = function () {
    this.ctx.restore();
 }
 
+// Handle bal to ball collision
 Breakout.prototype.handleBallCollision = function () {
   for(var i = 0; i < this.ballObjects.length-1; i++) {  
     for(var j = 1; j < this.ballObjects.length; j++) {  
@@ -478,7 +492,7 @@ Breakout.prototype.checkBallCollision = function (ball0, ball1) {
       }
 }
 
-
+// Check ball to wall collision
 Breakout.prototype.checkBallToWallCollision = function () {
     for(var index = 0; index < this.ballObjects.length; index++) {  
       // check left collision
