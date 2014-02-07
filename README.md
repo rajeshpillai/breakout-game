@@ -12,7 +12,7 @@ I am about to refactor the app based on feedback and some common practices.  Thi
 
 TRIAL RUN
 =============
-In breakout.js set the following to true to execute the game in trial mode.  In trial mode, the player doens't lose, even if the ball touches the groupd.
+In breakout.js set the following to true to execute the game in trial mode.  In trial mode, the player doens't lose, even if the ball touches the ground.
 
 this.trialRun = false;
 
