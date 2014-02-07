@@ -9,3 +9,10 @@ Losing is determined if the primary ball, which is the ball, with a circle marke
 NOTE
 =======
 I am about to refactor the app based on feedback and some common practices.  This was just a quick prototype created for demonstrating HTML5 game development to my 8 year old nephew.
+
+TRIAL RUN
+=============
+In breakout.js set the following to true to execute the game in trial mode.  In trial mode, the player doens't lose, even if the ball touches the groupd.
+
+this.trialRun = false;
+

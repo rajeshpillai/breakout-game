@@ -1,3 +1,5 @@
+// This keeps track of the score
+
 var Score = {
 	width: 600,
 	height:200,

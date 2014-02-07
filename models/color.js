@@ -1,3 +1,4 @@
+// The color object: Has some helper methods
 var Color = {
 	getRandomColor: function () {
 	    var letters = '0123456789ABCDEF'.split('');
