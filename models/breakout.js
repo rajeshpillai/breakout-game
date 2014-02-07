@@ -1,10 +1,11 @@
-
+// The entry point
 
 $(function () {
   breakOut = new Breakout();
 });
 
 var Breakout = function () {
+  // Pattern to avoid issue when not using "new" keyword to create instance
   if (!(this instanceof Breakout)) {
       return new Breakout();
   }
@@ -17,10 +18,12 @@ var Breakout = function () {
 };
 
 
+// Pause the game
 Breakout.prototype.pause = function (self) {
   clearInterval(self.gameLoop);   
 }
 
+// Resume the game
 Breakout.prototype.resume = function (that) {
   clearInterval(that.gameLoop);
   that.gameLoop = setInterval((function(self) {
@@ -68,17 +71,6 @@ Breakout.prototype.captureKeys = function () {
        that.movePaddle(that.paddleMove, that.paddle.deltaX);
     }
   });         
-
-  
-  $(document).on("keyup",function(evt) {
-      if (that.paddleMove === 'LEFT') {
-        that.paddle.deltaX = -3;
-      } 
-      else if(that.paddleMove === 'RIGHT'){
-        that.paddle.deltaX = 3;
-      }
-  }); 
-  
 };
 
 Breakout.prototype.init = function (level) {
