@@ -1,3 +1,4 @@
+// The Ball object
 var Ball = function (ctx,x,y, radius, angle) {
     this.ctx = ctx;
     this.x = x;
@@ -53,6 +54,7 @@ var Ball = function (ctx,x,y, radius, angle) {
     ctx.restore();
   };
 
+  // Draw the ball with a start (not actually, but an ellipse)
   Ball.prototype.drawStar = function (ctx, x, y, r, p, m) {
     ctx.save();
     ctx.beginPath();
