@@ -58,19 +58,17 @@ Breakout.prototype.captureKeys = function () {
             that.resume(that);        
           }
       }
+
+      if (that.isGameInProgress) {
+        if (evt.keyCode === 39) {
+          that.paddleMove = 'RIGHT';
+        } else if (evt.keyCode === 37){
+            that.paddleMove = 'LEFT';
+        }
+         that.movePaddle(that.paddleMove, that.paddle.deltaX);
+      }
       
   });
-
-  $(document).on("keydown keypress keyup",function(evt) {
-    if (evt.keyCode === 39) {
-        that.paddleMove = 'RIGHT';
-    } else if (evt.keyCode === 37){
-        that.paddleMove = 'LEFT';
-    }
-    if (that.isGameInProgress) {
-       that.movePaddle(that.paddleMove, that.paddle.deltaX);
-    }
-  });         
 };
 
 // Initialize the game
@@ -303,16 +301,20 @@ Breakout.prototype.winMessage = function () {
     this.ctx.fillText('PRESS <ENTER> or <RETURN> to play the game again. Refresh your browser to begin from LEVEL 1.',30, this.canvas.height/2);  
   }
   this.ctx.restore();
-
 }
 
 // Restart the game.. need better name here
 Breakout.prototype.animate = function(self) {
-  this.clear();
   if (self.gameOver) {
     this.endGame(self);
     return;
   }
+
+  if (self.gameOver) {
+    return;
+  }
+
+  this.clear();
 
   this.updateStatus();
 
@@ -326,14 +328,13 @@ Breakout.prototype.animate = function(self) {
   this.checkBallToBricksCollision();
   this.handleBallCollision();
 
+  Score.update();
+
   if (this.game.checkWinner()) {
     this.gameOver = true;
     this.clear();
     this.winMessage();
-    Score.update();
   }
-  Score.update();
-
 };
 
 // Move the paddler
