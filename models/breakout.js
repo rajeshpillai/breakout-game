@@ -9,7 +9,7 @@ var Breakout = function () {
   if (!(this instanceof Breakout)) {
       return new Breakout();
   }
-  this.trialRun = false;
+  this.trialRun = true;
   this.gameLevel = 1;
   this.gameLoop = null;
   this.isPaused = false;
