@@ -219,12 +219,18 @@ Breakout.prototype.start = function () {
   that.ballObjects.push(that.ball);   
 
   clearInterval(that.gameLoop);
-
   that.gameLoop = setInterval((function(self) {
     return function () {
       self.animate(self);
     }
   })(that), 1000/60);
+
+  // window.cancelAnimationFrame(that.gameLoop);
+  // (function loop() {
+  //   that.gameLoop = window.requestAnimationFrame(loop);
+  //   that.animate(self)
+  // })(that);
+
 };
 
 // Endgame and disable all key events
