@@ -17,20 +17,97 @@ var Breakout = function () {
   this.draw();
 };
 
+// Initialize the game
+Breakout.prototype.init = function (level) {
+  var that = this;
+
+  this.canvas = $("#canvas")[0];
+  this.ctx = canvas.getContext('2d');
+  this.backgroundColor = "white";
+
+  Score.init(this.ctx);
+  
+  this.ball = new Ball(this.ctx,50, 450, 12, 360);
+  this.ball.color = "red";
+
+  this.paddle =  new Paddle(this.ctx,40, 500,  80, 20,"orange");
+  
+  this.bricks = [];
+
+  this.brickObjects = [];
+  this.ballObjects = [];
+
+  this.game = this;
+  this.gameOver = false;
+
+  this.width = canvas.width;
+  this.height = canvas.height;
+  
+  this.clear();
+
+  this.bouncingSound = new Audio("sound/bounce.ogg");
+  this.breakingSound = new Audio("sound/break.ogg");
+  
+  this.captureKeys();
+
+  this.initializeBricks(level);
+  this.initializeActors(level);
+};
+
+
+// Start the Game
+Breakout.prototype.start = function () {
+  var that = this;
+  that.clear();
+  //this.ctx.globalAlpha = "0.4";
+  Score.reset();
+  that.gameOver = false;
+  that.isGameInProgress = true;
+  that.updateStatus();
+  
+  that.ball.x = that.randomRange(10,590);
+  that.ball.y = that.randomRange(80,400);
+
+  that.ballObjects = [];
+
+  that.ballObjects.push(that.ball);   
+
+  that._start = function () {
+    clearInterval(that.gameLoop);
+
+    // that.gameLoop = setInterval((function(self) {
+    //   return function () {
+    //     self.animate(self);
+    //   }
+    // })(that), 1000/60);
+
+    window.cancelAnimationFrame(that.gameLoop);
+    (function loop() {
+      that.gameLoop = window.requestAnimationFrame(loop);
+      that.animate(self)
+    })(that);
+  }
+
+  that._start();
+
+};
 
 // Pause the game
 Breakout.prototype.pause = function (self) {
-  clearInterval(self.gameLoop);   
+  //clearInterval(self.gameLoop);   
+  window.cancelAnimationFrame(this.gameLoop);
 }
 
 // Resume the game
 Breakout.prototype.resume = function (that) {
-  clearInterval(that.gameLoop);
-  that.gameLoop = setInterval((function(self) {
-    return function () {
-      self.animate(self);
-    }
-  })(that), 1000/60);
+  // clearInterval(that.gameLoop);
+  // that.gameLoop = setInterval((function(self) {
+  //   return function () {
+  //     self.animate(self);
+  //   }
+  // })(that), 1000/60);
+
+  this._start();
 }
 
 
@@ -71,44 +148,48 @@ Breakout.prototype.captureKeys = function () {
   });
 };
 
-// Initialize the game
-Breakout.prototype.init = function (level) {
-  var that = this;
-
-  this.canvas = $("#canvas")[0];
-  this.ctx = canvas.getContext('2d');
-  this.backgroundColor = "white";
-
-  Score.init(this.ctx);
-  
-  this.ball = new Ball(this.ctx,50, 450, 12, 360);
-  this.ball.color = "red";
-
-  this.paddle =  new Paddle(this.ctx,40, 500,  80, 20,"orange");
-  
-  this.bricks = [];
-
-  this.brickObjects = [];
-  this.ballObjects = [];
-
-  this.game = this;
-  this.gameOver = false;
-
-  this.width = canvas.width;
-  this.height = canvas.height;
-  
-  this.clear();
-
-  this.bouncingSound = new Audio("sound/bounce.ogg");
-  this.breakingSound = new Audio("sound/break.ogg");
-  
-  this.captureKeys();
-
-  this.initializeBricks(level);
-  this.initializeActors(level);
-};
 
 Breakout.prototype.initializeActors = function (level) {
+};
+
+
+
+// Endgame and disable all key events
+Breakout.prototype.endGame = function (that) {
+   clearInterval(that.gameLoop);
+   that.gameLoop = null;
+   that.gameOver = true;
+
+   $(document).off();  // disable all events on the documents.
+   that.captureKeys();
+   return;
+};
+
+
+// Draw the game
+Breakout.prototype.draw = function () {
+  this.paddle.draw(this.ctx);
+
+  var bricks = this.brickObjects;
+  for (var i = 0; i < bricks.length; i++) {
+    if (!bricks[i].isActive) {
+        bricks[i].color = this.backgroundColor;
+    }
+    bricks[i].draw(this.ctx);
+  }
+
+  for(var i = 0; i < this.ballObjects.length; i++) {
+    this.ballObjects[i].move();
+  }
+  
+  Score.update();
+};
+
+Breakout.prototype.clear = function () {
+   this.ctx.save();
+   this.ctx.fillStyle =this.backgroundColor;
+   this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
+   this.ctx.restore();
 };
 
 // Update Game Status
@@ -201,75 +282,6 @@ Breakout.prototype.randomRange = function(min, max) {
     return Math.floor(Math.random() * (max + 1 -min)) + min;
 };
 
-// Start the Game
-Breakout.prototype.start = function () {
-  var that = this;
-  that.clear();
-  //this.ctx.globalAlpha = "0.4";
-  Score.reset();
-  that.gameOver = false;
-  that.isGameInProgress = true;
-  that.updateStatus();
-  
-  that.ball.x = that.randomRange(10,590);
-  that.ball.y = that.randomRange(80,400);
-
-  that.ballObjects = [];
-
-  that.ballObjects.push(that.ball);   
-
-  clearInterval(that.gameLoop);
-  that.gameLoop = setInterval((function(self) {
-    return function () {
-      self.animate(self);
-    }
-  })(that), 1000/60);
-
-  // window.cancelAnimationFrame(that.gameLoop);
-  // (function loop() {
-  //   that.gameLoop = window.requestAnimationFrame(loop);
-  //   that.animate(self)
-  // })(that);
-
-};
-
-// Endgame and disable all key events
-Breakout.prototype.endGame = function (that) {
-   clearInterval(that.gameLoop);
-   that.gameLoop = null;
-   that.gameOver = true;
-
-   $(document).off();  // disable all events on the documents.
-   that.captureKeys();
-   return;
-};
-
-
-// Draw the game
-Breakout.prototype.draw = function () {
-  this.paddle.draw(this.ctx);
-
-  var bricks = this.brickObjects;
-  for (var i = 0; i < bricks.length; i++) {
-    if (!bricks[i].isActive) {
-        bricks[i].color = this.backgroundColor;
-    }
-    bricks[i].draw(this.ctx);
-  }
-
-  for(var i = 0; i < this.ballObjects.length; i++) {
-    this.ballObjects[i].move();
-  }
-  
-  Score.update();
-};
-
-Breakout.prototype.clear = function () {
-   this.ctx.save();
-   this.ctx.fillStyle =this.backgroundColor;
-   this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
-   this.ctx.restore();
-};
 
 // Check if there is a winner
 Breakout.prototype.checkWinner = function () {
